@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  FEIRANTE
+  ONG
+  ADMIN
+}
+
+enum DonationStatus {
+  AVAILABLE
+  REQUESTED
+  COMPLETED
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id               Int                @id @default(autoincrement())
+  reports Report[] // Relação inversa
+  name             String
+  email            String             @unique
+  phone            String?
+  passwordHash     String
+  role             Role
+  cpf              String?            @unique
+  cnpj             String?            @unique
+  address          String?
+  isVerified       Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  donations        Donation[]
+  requests         Request[]
+  inventories      Inventory[]
+  notifications    Notification[]
+  chatbotLogs      ChatbotLog[]
+  verification     VerificationToken[]
+  passwordResets   PasswordResetToken[]
+}
+
+model VerificationToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Donation {
+  id          Int       @id @default(autoincrement())
+  feiranteId  Int
+  feirante    User      @relation(fields: [feiranteId], references: [id])
+  status      DonationStatus @default(AVAILABLE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  images      Image[]
+  items       DonationItem[]
+  requests    Request[]
+}
+
+model Image {
+  id             Int       @id @default(autoincrement())
+  donationId     Int
+  donation       Donation  @relation(fields: [donationId], references: [id])
+  url            String
+  aiAnalysis     Json?
+  manualOverride Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model DonationItem {
+  id               Int       @id @default(autoincrement())
+  donationId       Int
+  donation         Donation  @relation(fields: [donationId], references: [id])
+  foodType         String
+  quantity         Int
+  isManualAdjusted Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  requests         Request[]
+  inventory        Inventory?
+}
+
+model Request {
+  id             Int          @id @default(autoincrement())
+  donationId     Int?
+  donation       Donation?    @relation(fields: [donationId], references: [id])
+  donationItemId Int          // Campo adicionado
+  donationItem   DonationItem @relation(fields: [donationItemId], references: [id])
+  ongId          Int
+  ong            User         @relation(fields: [ongId], references: [id])
+  status         RequestStatus @default(PENDING)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Inventory {
+  id              Int       @id @default(autoincrement())
+  ongId           Int
+  ong             User      @relation(fields: [ongId], references: [id])
+  donationItemId  Int @unique
+  donationItem    DonationItem @relation(fields: [donationItemId], references: [id])
+  expirationDate  DateTime
+  distributedAt   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ChatbotLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  question  String
+  response  String
+  rating    Int?
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id           Int      @id @default(autoincrement())
+  generatedById Int
+  generatedBy  User     @relation(fields: [generatedById], references: [id])
+  data         Json
+  createdAt    DateTime @default(now())
+}
