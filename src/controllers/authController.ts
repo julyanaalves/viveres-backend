@@ -52,7 +52,7 @@ export const login = async (req: Request, res: Response) => {
     const token = jwt.sign({ userId: user.id }, "JWT_SECRET", {
       expiresIn: "1h",
     });
-    ApiResponse.success(res, { token });
+    ApiResponse.success(res, { token, user });
   } catch (error) {
     console.log(error);
     ApiResponse.error(res, "Login failed", 400);
