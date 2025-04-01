@@ -38,3 +38,38 @@ export const updateOngProfile = async (req: any, res: Response) => {
     ApiResponse.error(res, "Failed to update ONG profile", 400);
   }
 };
+
+export const getDonationHistory = async (req: Request, res: Response) => {
+  const ongId = req.userId;
+
+  try {
+    const donations = await prisma.request.findMany({
+      where: { ongId },
+      include: {
+        donation: {
+          include: { feirante: true, items: true },
+        },
+      },
+    });
+    ApiResponse.success(res, donations);
+  } catch (error) {
+    ApiResponse.error(res, "Failed to fetch donation history", 400);
+  }
+};
+
+export const requestDonation = async (req: any, res: Response) => {
+  const ongId = req.userId;
+  const { donationItemId } = req.body;
+
+  try {
+    const request = await prisma.request.create({
+      data: {
+        ongId,
+        donationItemId,
+      },
+    });
+    ApiResponse.success(res, request, 201);
+  } catch (error) {
+    ApiResponse.error(res, "Failed to request donation", 400);
+  }
+};
