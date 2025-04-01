@@ -39,7 +39,7 @@ export const updateOngProfile = async (req: any, res: Response) => {
   }
 };
 
-export const getDonationHistory = async (req: Request, res: Response) => {
+export const getDonationHistory = async (req: any, res: Response) => {
   const ongId = req.userId;
 
   try {
