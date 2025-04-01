@@ -91,3 +91,31 @@ export const requestDonation = async (req: any, res: Response) => {
     ApiResponse.error(res, "Failed to request donation", 400);
   }
 };
+
+
+export const getAvailableDonations = async (req: any, res: Response) => {
+  const ongId = req.userId;
+
+  try {
+    // Busque doações que não possuem solicitações da ONG atual
+    const donations = await prisma.donation.findMany({
+      where: {
+        requests: {
+          none: {
+            ongId: ongId,
+          },
+        },
+        status: "AVAILABLE", // Certifique-se de que o status da doação seja "AVAILABLE"
+      },
+      include: {
+        items: true,
+        feirante: true,
+      },
+    });
+
+    ApiResponse.success(res, donations);
+  } catch (error) {
+    console.error(error);
+    ApiResponse.error(res, "Failed to fetch available donations", 400);
+  }
+};
