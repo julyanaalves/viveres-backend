@@ -7,6 +7,6 @@ const router = express.Router();
 router.get('/profile', authenticate, getOngProfile);
 router.put('/profile', authenticate, updateOngProfile);
 router.get('/donation-history', authenticate, getDonationHistory);
-router.post('/request-donation/:donation', authenticate, requestDonation);
+router.post('/request-donation/:donationId', authenticate, requestDonation);
 
 export default router;
