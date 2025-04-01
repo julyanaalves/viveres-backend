@@ -71,7 +71,7 @@ export const getDonationsByFeiranteId = async (req: Request, res: Response) => {
 
   try {
     const donations = await prisma.donation.findMany({
-      where: { feiranteId: Number(id) },
+      where: { feiranteId: Number(id), status: "AVAILABLE" },
       include: {
         items: true,
         requests: true,
@@ -84,6 +84,25 @@ export const getDonationsByFeiranteId = async (req: Request, res: Response) => {
     ApiResponse.error(res, "Failed to get donations", 400);
   }
 };
+
+export const getDonationsAprovedByFeiranteId = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const donations = await prisma.donation.findMany({
+      where: { feiranteId: Number(id), status: "COMPLETED" },
+      include: {
+        items: true,
+        requests: true,
+      },
+    });
+    if (!donations) return ApiResponse.error(res, "No donations found", 404);
+
+    ApiResponse.success(res, donations);
+  }
+  catch (error) {
+    ApiResponse.error(res, "Failed to get donations", 400);
+  }
+}
 
 export const saveImageDonation = async (req: Request, res: Response) => {
   const { donationId, url, aiAnalysis, manualOverride } = req.body;
