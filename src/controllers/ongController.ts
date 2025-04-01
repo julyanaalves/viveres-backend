@@ -59,13 +59,24 @@ export const getDonationHistory = async (req: any, res: Response) => {
 
 export const requestDonation = async (req: any, res: Response) => {
   const ongId = req.userId;
-  const { donationItemId } = req.body;
+  const { donationId } = req.params;
 
   try {
+    const donation = await prisma.donation.findUnique({
+      where: { id: Number(donationId) },
+      include: { items: true },
+    });
+    if (!donation) return ApiResponse.error(res, "Donation not found", 404);
+    
+
+
+
     const request = await prisma.request.create({
       data: {
         ongId,
-        donationItemId,
+        donationId: Number(donationId),
+        status: "PENDING",
+        donationItemId: donation.items[0].id, // Assuming you want to request the first item,
       },
     });
     ApiResponse.success(res, request, 201);
