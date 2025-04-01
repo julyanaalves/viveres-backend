@@ -55,7 +55,11 @@ export const getDonationById = async (req: Request, res: Response) => {
       include: {
         feirante: true,
         items: true,
-        requests: true,
+        requests: {
+          include: {
+            ong: true,
+          },
+        },
       },
     });
     if (!donation) return ApiResponse.error(res, "Donation not found", 404);
