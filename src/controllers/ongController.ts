@@ -16,6 +16,8 @@ export const getOngProfile = async (req: any, res: Response) => {
 
     ApiResponse.success(res, ong);
   } catch (error) {
+    
+    console.error(error);
     ApiResponse.error(res, "Failed to get ONG profile", 400);
   }
 };
@@ -35,6 +37,8 @@ export const updateOngProfile = async (req: any, res: Response) => {
 
     ApiResponse.success(res, { message: "ONG profile updated successfully" });
   } catch (error) {
+    
+    console.error(error);
     ApiResponse.error(res, "Failed to update ONG profile", 400);
   }
 };
@@ -53,6 +57,8 @@ export const getDonationHistory = async (req: any, res: Response) => {
     });
     ApiResponse.success(res, donations);
   } catch (error) {
+    
+    console.error(error);
     ApiResponse.error(res, "Failed to fetch donation history", 400);
   }
 };
@@ -81,6 +87,7 @@ export const requestDonation = async (req: any, res: Response) => {
     });
     ApiResponse.success(res, request, 201);
   } catch (error) {
+    console.error(error);
     ApiResponse.error(res, "Failed to request donation", 400);
   }
 };
